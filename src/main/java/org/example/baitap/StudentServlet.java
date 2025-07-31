@@ -49,6 +49,9 @@ public class StudentServlet extends HttpServlet {
             case "/delete":
                 deleteStudent(req,resp);
                 break;
+            case "/search":
+                searchStudent(req, resp);
+                break;
             default:
         }
     }
@@ -239,5 +242,32 @@ public class StudentServlet extends HttpServlet {
             throw new RuntimeException(e);
         }
         return list;
+    }
+
+    public void searchStudent(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            String keyword = request.getParameter("keyword");
+            String sql = "SELECT * FROM students WHERE name LIKE ? OR email LIKE ? ";
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setString(1, '%' + keyword + '%');
+            preparedStatement.setString(2, '%' + keyword + '%');
+            ResultSet resultSet = preparedStatement.executeQuery();
+            List<Student> list = new ArrayList<>();
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String name = resultSet.getString("name");
+                int gender = resultSet.getInt("gender");
+                String email = resultSet.getString("email");
+                String phone = resultSet.getString("phone");
+
+                Student student = new Student(id, name, gender, email, phone);
+                list.add(student);
+            }
+            request.setAttribute("listStudent", list);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/view/student/list.jsp");
+            dispatcher.forward(request, response);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

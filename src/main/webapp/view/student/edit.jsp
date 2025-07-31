@@ -36,19 +36,25 @@
             </td>
         </tr>
         <tr>
+            <td>
             <label>Email:</label>
+            </td>
             <td>
                 <input type="text" name="email" value="<c:out value="${student.email}"/>">
             </td>
         </tr>
         <tr>
+            <td>
             <label>Phone:</label>
+            </td>
             <td>
                 <input type="text" name="phone" value="<c:out value="${student.phone}"/>">
             </td>
         </tr>
         <tr>
+            <td>
             <label>Group:</label>
+            </td>
             <td>
                 <select name="group_id">
                     <c:forEach var="group" items="${listGroup}">

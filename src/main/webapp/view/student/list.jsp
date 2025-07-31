@@ -57,7 +57,7 @@
       <td>${student.email}</td>
       <td>${student.phone}</td>
       <td>${student.getGroup().getName()}</td>
-      <td><a href="/student/edit/${student.id}">Edit</a></td>
+      <td><a href="/student/edit?id=${student.id}">Edit</a></td>
       <td><a href="/student/delete/${student.id}">Delete</a></td>
     </tr>
   </c:forEach>
