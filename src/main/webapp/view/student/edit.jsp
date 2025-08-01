@@ -7,6 +7,9 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
 
 <c:set var="student" value="${requestScope.studentEdit}"/>
 <c:set var="listGroup" value="${requestScope.listGroup}"/>
@@ -17,7 +20,7 @@
 <body>
 <h2>Edit Student</h2>
 <form action="/student/edit?id=<c:out value="${student.id}"/>" method="post">
-    <table>
+    <table class="table-primary">
         <tr>
             <td>
                 <label>Name:</label>
@@ -75,5 +78,7 @@
     </table>
 </form>
 
+<!-- Bootstrap 5 JS + Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

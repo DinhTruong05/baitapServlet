@@ -10,7 +10,9 @@ import org.example.baitap.dataBase.DBConnect;
 import org.example.baitap.entites.Group;
 import org.example.baitap.entites.Student;
 import org.example.baitap.entites.Subject;
+import org.example.baitap.models.GroupModel;
 import org.example.baitap.models.StudentModel;
+//import org.example.baitap.models.SubjectModel;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -24,12 +26,16 @@ import java.util.List;
 public class StudentServlet extends HttpServlet {
     Connection conn = null;
     StudentModel studentModel;
+    GroupModel groupModel;
+//    SubjectModel subjectModel;
 
     @Override
     public void init() {
         DBConnect dbConnect = new DBConnect();
         conn = dbConnect.getConnection();
         studentModel = new StudentModel();
+        groupModel = new GroupModel();
+//        subjectModel = new SubjectModel();
     }
 
     @Override
@@ -60,7 +66,7 @@ public class StudentServlet extends HttpServlet {
                 showListSubject(req, resp);
                 break;
             case "/createsubject":
-                addSubject(req, resp);
+                showCreateSubjectPage(req, resp);
                 break;
             default:
         }
@@ -80,6 +86,9 @@ public class StudentServlet extends HttpServlet {
             case "/store":
                 storeStudent(req,resp);
                 break;
+                case "/createsubject":
+                    addSubject(req, resp);
+                    break;
 
         }
     }
@@ -87,29 +96,10 @@ public class StudentServlet extends HttpServlet {
     public void showListUserPage(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         try{
-            String sql = "SELECT students.*, `groups`.name as 'group_name' FROM students\n" +
-                    "JOIN `groups` ON students.group_id = `groups`.id";
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet resultSet = ps.executeQuery();
-            List<Student> list = new ArrayList<>();
-
-            while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String name = resultSet.getString("name");
-                int gender = resultSet.getInt("gender");
-                String email = resultSet.getString("email");
-                String phone = resultSet.getString("phone");
-                Student student = new Student(id, name, gender, email, phone);
-                int groupId = resultSet.getInt("group_id");
-                String groupName = resultSet.getString("group_name");
-                Group group = new Group(groupId, groupName);
-                student.setGroup(group);
-                list.add(student);
-            }
+            List<Student> list = studentModel.getAllStudent();
             req.setAttribute("listStudent", list);
-            RequestDispatcher dispatcher = req.getRequestDispatcher("/view/student/list.jsp");
-            dispatcher.forward(req, resp);
-
+            RequestDispatcher requestDispatcher = req.getRequestDispatcher("/view/student/list.jsp");
+            requestDispatcher.forward(req, resp);
         }catch (SQLException | IOException e){
             throw new RuntimeException(e);
         }
@@ -119,9 +109,11 @@ public class StudentServlet extends HttpServlet {
 
     private void showCreatPage(HttpServletRequest req, HttpServletResponse resp) {
         try {
+            List<Group>listGroup = groupModel.getAll();
+            req.setAttribute("listGroup", listGroup);
             RequestDispatcher dispatcher = req.getRequestDispatcher("/view/student/create.jsp");
             dispatcher.forward(req, resp);
-        }catch (ServletException | IOException e){
+        }catch (ServletException | IOException | SQLException e){
             throw new RuntimeException();
         }
     }
@@ -199,24 +191,12 @@ public class StudentServlet extends HttpServlet {
         return studentModel.findStudentByID(id);
     }
     private List<Group> getAllGroup() throws SQLException {
-        List<Group> list = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM `groups`";
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet resultSet = ps.executeQuery();
-
-            while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String name = resultSet.getString("name");
-                Group group = new Group(id, name);
-                list.add(group);
-
-        }
+            return groupModel.getAll();
 
         }catch (SQLException e){
             throw new RuntimeException(e);
         }
-        return list;
     }
 
     public void searchStudent(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -272,15 +252,28 @@ public class StudentServlet extends HttpServlet {
     public void addSubject(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             String name = request.getParameter("name");
+            if(name == null || name.trim().isEmpty()){
+                request.setAttribute("error", "Tên môn học không được để trống");
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/view/student/subject.jsp");
+                dispatcher.forward(request, response);
+                return;
+            }
             Subject subject = new Subject(name);
-
-
             String sql = "INSERT INTO subjects (name) VALUES (?)";
-            PreparedStatement preparedStatement = conn.prepareStatement(sql);
-            preparedStatement.setString(1, subject.getName());
-            preparedStatement.executeUpdate();
+            try (PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+                preparedStatement.setString(1, subject.getName());
+                preparedStatement.executeUpdate();
+            }
             response.sendRedirect("/student/subject");
         } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void showCreateSubjectPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/view/student/createsubject.jsp");
+            dispatcher.forward(request, response);
+        } catch (ServletException | IOException e) {
             throw new RuntimeException(e);
         }
     }

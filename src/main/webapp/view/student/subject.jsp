@@ -15,6 +15,7 @@
 <body>
 <h2>Danh Sách Môn Hoc</h2>
 <a href="/student/createsubject">Add Subject</a>
+<a href="/student">List Student</a>
 <table>
     <tr>
         <th>STT</th>

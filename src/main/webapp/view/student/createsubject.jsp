@@ -12,8 +12,20 @@
 </head>
 <body>
 <form action="/student/createsubject" method="post">
-    <input type="text" name="subject">
-    <input type="submit" value="submit">
+    <table>
+        <tr>
+            <td>Name:</td>
+            <td><input type="text" name="name" required></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <button type="submit">Save</button>
+                <button type="reset">Reset</button>
+                <a href="/student/subject">Back</a>
+            </td>
+        </tr>
+    </table>
 </form>
 
 </body>
