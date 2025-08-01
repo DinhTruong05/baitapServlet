@@ -7,6 +7,8 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<c:set var="student" value="${requestScope.studentEdit}"/>
+<c:set var="listGroup" value="${requestScope.listGroup}"/>
 <html>
 <head>
     <title>Create Student</title>
@@ -34,6 +36,18 @@
         <tr>
             <td>Phone</td>
             <td><input type="text" name="phone"></td>
+        </tr>
+        <tr>
+            <td>
+                Group
+            </td>
+            <td>
+                <select name="group_id">
+                    <c:forEach var="group" items="${listGroup}">
+                        <option <c:if test="${student.getGroup().getId() == group.getId()}">selected</c:if> value="<c:out value="${group.getId()}"/>">
+                            <c:out value="${group.getName()}"/></option>
+                    </c:forEach>
+                </select>
             </td>
         </tr>
         <tr>
@@ -41,6 +55,7 @@
             <td>
                 <button type="submit">Save</button>
                 <button type="reset">Reset</button>
+                <a href="/student">Back</a>
             </td>
         </tr>
     </table>

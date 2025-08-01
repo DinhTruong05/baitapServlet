@@ -1,4 +1,4 @@
-package entites;
+package org.example.baitap.entites;
 
 public class Student {
     private int id;
@@ -20,6 +20,14 @@ public class Student {
         this.gender = gender;
         this.email = email;
         this.phone = phone;
+    }
+
+    public Student(String name, int gender, String email, String phone, Group group) {
+        this.name = name;
+        this.gender = gender;
+        this.email = email;
+        this.phone = phone;
+        this.group = group;
     }
 
     public int getId() {

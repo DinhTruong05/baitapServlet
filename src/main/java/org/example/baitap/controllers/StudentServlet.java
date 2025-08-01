@@ -1,14 +1,16 @@
-package org.example.baitap;
+package org.example.baitap.controllers;
 
-import dataBase.DBConnect;
-import entites.Group;
-import entites.Student;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.example.baitap.dataBase.DBConnect;
+import org.example.baitap.entites.Group;
+import org.example.baitap.entites.Student;
+import org.example.baitap.entites.Subject;
+import org.example.baitap.models.StudentModel;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -21,11 +23,13 @@ import java.util.List;
 @WebServlet(name = "StudentServlet", urlPatterns = {"/student/*"})
 public class StudentServlet extends HttpServlet {
     Connection conn = null;
+    StudentModel studentModel;
 
     @Override
     public void init() {
         DBConnect dbConnect = new DBConnect();
         conn = dbConnect.getConnection();
+        studentModel = new StudentModel();
     }
 
     @Override
@@ -52,6 +56,12 @@ public class StudentServlet extends HttpServlet {
             case "/search":
                 searchStudent(req, resp);
                 break;
+            case "/subject":
+                showListSubject(req, resp);
+                break;
+            case "/createsubject":
+                addSubject(req, resp);
+                break;
             default:
         }
     }
@@ -67,9 +77,10 @@ public class StudentServlet extends HttpServlet {
             case "/edit":
                 editStudent(req, resp);
                 break;
-            case "/create":
+            case "/store":
                 storeStudent(req,resp);
                 break;
+
         }
     }
 
@@ -121,18 +132,11 @@ public class StudentServlet extends HttpServlet {
             int gender = Integer.parseInt(req.getParameter("gender"));
             String email = req.getParameter("email");
             String phone = req.getParameter("phone");
-            String groupId = req.getParameter("group_id");
+            int groupID = Integer.parseInt(req.getParameter("group_id"));
 
             Student student = new Student(name, gender, email, phone);
+            studentModel.createStudent(student, groupID);
 
-            String sql = "INSERT INTO students (name, gender, email, phone,group_id) VALUES (?, ?, ?, ?,?)";
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, student.getName());
-            ps.setInt(2, student.getGender());
-            ps.setString(3, student.getEmail());
-            ps.setString(4, student.getPhone());
-            ps.setString(5, groupId);
-            ps.executeUpdate();
             resp.sendRedirect("/student");
         } catch (SQLException | IOException e) {
             throw new RuntimeException(e);
@@ -141,10 +145,7 @@ public class StudentServlet extends HttpServlet {
     public void deleteStudent(HttpServletRequest request, HttpServletResponse response){
         int id = Integer.parseInt(request.getParameter("id"));
         try {
-            String sql = "DELETE FROM students WHERE id = ?";
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, id);
-            ps.execute();
+            studentModel.deleteStudent(id);
             response.sendRedirect("/student");
         } catch (SQLException | IOException e) {
             throw new RuntimeException(e);
@@ -185,15 +186,7 @@ public class StudentServlet extends HttpServlet {
             String groupId = request.getParameter("group_id");
             Student student = new Student(id, name, gender, email, phone);
 
-            String sql = "UPDATE students SET name = ?, gender =?, email = ?, phone = ?, group_id = ? WHERE id = ?";
-            PreparedStatement preparedStatement = conn.prepareStatement(sql);
-            preparedStatement.setString(1,student.getName());
-            preparedStatement.setInt(2,student.getGender());
-            preparedStatement.setString(3,student.getEmail());
-            preparedStatement.setString(4,student.getPhone());
-            preparedStatement.setString(5,groupId);
-            preparedStatement.setInt(6,studentEdit.getId());
-            preparedStatement.execute();
+            studentModel.updateStudent(student, id, groupId);
 
             response.sendRedirect("/student");
 
@@ -202,26 +195,8 @@ public class StudentServlet extends HttpServlet {
         }
     }
     private Student findStudentByID(int id) throws SQLException {
-        String sql = "SELECT students.*, `groups`.name as 'group_name' FROM students\n" +
-        "JOIN `groups` ON students.group_id = `groups`.id WHERE students.id = ?";
-        PreparedStatement ps = conn.prepareStatement(sql);
-        ps.setInt(1, id);
-        ResultSet resultSet = ps.executeQuery();
-        Student s = null;
-        if (resultSet.next()) {
-            int idStudent = resultSet.getInt("id");
-            String name = resultSet.getString("name");
-            int gender = resultSet.getInt("gender");
-            String email = resultSet.getString("email");
-            String phone = resultSet.getString("phone");
-            int groupId = resultSet.getInt("group_id");
-            String groupName = resultSet.getString("group_name");
-            Group group = new Group(groupId, groupName);
-            s = new Student(idStudent, name, gender, email, phone);
-            s.setGroup(group);
 
-        }
-        return s;
+        return studentModel.findStudentByID(id);
     }
     private List<Group> getAllGroup() throws SQLException {
         List<Group> list = new ArrayList<>();
@@ -266,6 +241,45 @@ public class StudentServlet extends HttpServlet {
             request.setAttribute("listStudent", list);
             RequestDispatcher dispatcher = request.getRequestDispatcher("/view/student/list.jsp");
             dispatcher.forward(request, response);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void showListSubject(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            String sql = "SELECT * FROM subjects";
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            List<Subject> list = new ArrayList<>();
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String name = resultSet.getString("name");
+
+                Subject subject = new Subject(id, name);
+                list.add(subject);
+            }
+            request.setAttribute("listSubject", list);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/view/student/subject.jsp");
+            dispatcher.forward(request, response);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void addSubject(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            String name = request.getParameter("name");
+            Subject subject = new Subject(name);
+
+
+            String sql = "INSERT INTO subjects (name) VALUES (?)";
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setString(1, subject.getName());
+            preparedStatement.executeUpdate();
+            response.sendRedirect("/student/subject");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

@@ -28,6 +28,7 @@
   <input type="submit" value="Search">
 </form>
 <a href="/student/create">Create</a>
+<a href="/student/subject">Subject</a>
 
 <table>
   <tr>

@@ -53,12 +53,13 @@
         </tr>
         <tr>
             <td>
-            <label>Group:</label>
+                Group:
             </td>
             <td>
                 <select name="group_id">
                     <c:forEach var="group" items="${listGroup}">
-                        <option <c:if test="${student.getGroup().getId() == group.getId()}">selected</c:if> value="<c:out value="${group.getId()}"/>"><c:out value="${group.getName()}"/></option>
+                        <option <c:if test="${student.getGroup().getId() == group.getId()}">selected</c:if> value="<c:out value="${group.getId()}"/>">
+                            <c:out value="${group.getName()}"/></option>
                     </c:forEach>
                 </select>
             </td>

@@ -1,11 +1,14 @@
-package entites;
+package org.example.baitap.entites;
 
-public class Group {
+public class Subject {
     private int id;
     private String name;
 
-    public Group(int id, String name) {
+    public Subject(int id, String name) {
         this.id = id;
+        this.name = name;
+    }
+    public Subject(String name) {
         this.name = name;
     }
 
