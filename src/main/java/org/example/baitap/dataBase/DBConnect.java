@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBConnect {
-    private final String jdbcUrl  = "jdbc:mysql://localhost:3306/studentmanager?useSSL=false";
+    private final String jdbcUrl  = "jdbc:mysql://localhost:3306/studentmanager?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
     private final String username = "root";
     private final String password = "Dinhtruong95";
 

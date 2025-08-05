@@ -24,18 +24,25 @@ import java.util.List;
 
 @WebServlet(name = "StudentServlet", urlPatterns = {"/student/*"})
 public class StudentServlet extends HttpServlet {
-    Connection conn = null;
-    StudentModel studentModel;
-    GroupModel groupModel;
+    private Connection conn = null;
+    private StudentModel studentModel;
+    private GroupModel groupModel;
 //    SubjectModel subjectModel;
 
     @Override
-    public void init() {
-        DBConnect dbConnect = new DBConnect();
-        conn = dbConnect.getConnection();
-        studentModel = new StudentModel();
-        groupModel = new GroupModel();
-//        subjectModel = new SubjectModel();
+    public void init() throws ServletException {
+        try {
+            DBConnect dbConnect = new DBConnect();
+            conn = dbConnect.getConnection();
+
+            studentModel = new StudentModel();
+            groupModel = new GroupModel();
+            System.out.println("✅ StudentServlet khởi tạo thành công.");
+        } catch (Exception e) {
+            System.out.println("❌ Lỗi khi khởi tạo StudentServlet:");
+            e.printStackTrace();
+            throw new ServletException("Lỗi khởi tạo StudentServlet", e);
+        }
     }
 
     @Override
@@ -68,6 +75,9 @@ public class StudentServlet extends HttpServlet {
             case "/createsubject":
                 showCreateSubjectPage(req, resp);
                 break;
+                case "/deletesubject":
+                    deletSubject(req, resp);
+                    break;
             default:
         }
     }
@@ -86,9 +96,9 @@ public class StudentServlet extends HttpServlet {
             case "/store":
                 storeStudent(req,resp);
                 break;
-                case "/createsubject":
-                    addSubject(req, resp);
-                    break;
+            case "/createsubject":
+                addSubject(req, resp);
+                break;
 
         }
     }
@@ -135,13 +145,14 @@ public class StudentServlet extends HttpServlet {
         }
     }
     public void deleteStudent(HttpServletRequest request, HttpServletResponse response){
-        int id = Integer.parseInt(request.getParameter("id"));
+        String id = request.getParameter("id");
         try {
-            studentModel.deleteStudent(id);
+            studentModel.deleteStudent(Integer.parseInt(id));
             response.sendRedirect("/student");
-        } catch (SQLException | IOException e) {
+        }catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
+
     }
 
     public void showEditPage(HttpServletRequest request, HttpServletResponse response){
@@ -228,7 +239,7 @@ public class StudentServlet extends HttpServlet {
 
     public void showListSubject(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            String sql = "SELECT * FROM subjects";
+            String sql = "SELECT * FROM studentmanager.subjects;";
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
             ResultSet resultSet = preparedStatement.executeQuery();
             List<Subject> list = new ArrayList<>();
@@ -276,5 +287,16 @@ public class StudentServlet extends HttpServlet {
         } catch (ServletException | IOException e) {
             throw new RuntimeException(e);
         }
+    }
+    public void deletSubject(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            String id = request.getParameter("id");
+            String sql = "DELETE FROM subjects WHERE id = ?";
+            try (PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+                preparedStatement.setInt(1, Integer.parseInt(id));
+                preparedStatement.executeUpdate();
+            }
+            response.sendRedirect("/student/subject");
+        } catch (SQLException e) {}
     }
 }

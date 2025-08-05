@@ -1,84 +1,69 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: admin
-  Date: 7/31/2025
-  Time: 2:46 PM
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<c:set var="student" value="${requestScope.studentEdit}"/>
-<c:set var="listGroup" value="${requestScope.listGroup}"/>
-<!-- Bootstrap 5 CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<c:set var="listGroup" value="${requestScope.listGroup}" />
 
+<!DOCTYPE html>
 <html>
 <head>
     <title>Create Student</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<h2>Create New Student</h2>
-<form action="/student/store" method="post">
-    <table class="table-primary">
-        <div class="row mb-3">
-            <label for="inputEmail3" class="col-sm-2 col-form-label text-center fw-bold">Name</label>
-            <div class="col-sm-4">
-                <input type="email" class="form-control text-center fw-bold " id="inputEmail3">
-            </div>
-        </div>
-        <tr class="table-primary">
-            <td class="table-primary text-center fw-bold ">Gender:</td>
-            <td>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="gender" id="radioDefault1" value="1">
-                    <label class="form-check-label" for="radioDefault1">
-                    Male
-                    </label>
-                </div>
-                <div class="form-check form-check-inline col-sm-4">
-                    <input class="form-check-input col-sm-4" type="radio" name="gender" id="radioDefault1" value="2">
-                    <label class="form-check-label col-sm-4" for="radioDefault1">
-                        Female
-                    </label>
-                </div>
-            </td>
+<div class="container mt-5">
+    <h2 class="text-center fw-bold mb-4">Create New Student</h2>
 
-        </tr>
-        <div class="row mb-3">
-            <label for="inputEmail3" class="col-sm-2 col-form-label text-center fw-bold">Email</label>
-            <div class="col-sm-4">
-                <input type="email" class="form-control" id="inputEmail3">
+    <form action="/student/store" method="post" class="w-75 mx-auto">
+
+        <!-- Name -->
+        <div class="mb-3">
+            <label for="name" class="form-label fw-bold">Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+
+        <!-- Gender -->
+        <div class="mb-3">
+            <label class="form-label fw-bold">Gender</label><br>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="gender" id="male" value="1" required>
+                <label class="form-check-label" for="male">Male</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="gender" id="female" value="2">
+                <label class="form-check-label" for="female">Female</label>
             </div>
         </div>
-        <div class="row mb-3">
-            <label for="inputEmail3" class="col-sm-2 col-form-label text-center fw-bold">Phone</label>
-            <div class="col-sm-4">
-                <input type="email" class="form-control" id="inputEmail3">
-            </div>
+
+        <!-- Email -->
+        <div class="mb-3">
+            <label for="email" class="form-label fw-bold">Email</label>
+            <input type="email" class="form-control" id="email" name="email" required>
         </div>
-        <tr class="table-primary">
-            <td>
-                Group
-            </td>
-            <td>
-                <select name="group_id">
-                    <c:forEach var="group" items="${listGroup}">
-                        <option value="${group.id}">${group.name}</option>
-                    </c:forEach>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td></td>
-            <td>
-                <button class="btn btn-primary" type="submit">Save</button>
-                <button class="btn btn-primary" type="reset">Reset</button>
-                <a class="btn btn-outline-primary" href="/student">Back</a>
-            </td>
-        </tr>
-    </table>
-</form>
-<!-- Bootstrap 5 JS + Popper -->
+
+        <!-- Phone -->
+        <div class="mb-3">
+            <label for="phone" class="form-label fw-bold">Phone</label>
+            <input type="text" class="form-control" id="phone" name="phone" required>
+        </div>
+
+        <!-- Group -->
+        <div class="mb-3">
+            <label for="group_id" class="form-label fw-bold">Group</label>
+            <select class="form-select" name="group_id" id="group_id" required>
+                <c:forEach var="group" items="${listGroup}">
+                    <option value="${group.id}">${group.name}</option>
+                </c:forEach>
+            </select>
+        </div>
+
+        <!-- Buttons -->
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success">Save</button>
+            <button type="reset" class="btn btn-warning">Reset</button>
+            <a href="/student" class="btn btn-secondary">Back</a>
+        </div>
+    </form>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

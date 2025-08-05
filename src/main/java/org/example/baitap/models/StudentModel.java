@@ -23,9 +23,10 @@ public class StudentModel extends BaseModel {
 
     public void deleteStudent(int id) throws SQLException {
         String sql = "DELETE FROM students WHERE id = ?";
-        PreparedStatement ps = conn.prepareStatement(sql);
-        ps.setInt(1, id);
-        ps.execute();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        }
 
     }
 
@@ -95,8 +96,6 @@ public class StudentModel extends BaseModel {
             student.setGroup(group);
             list.add(student);
         }
-
-
         return  list;
     }
 
